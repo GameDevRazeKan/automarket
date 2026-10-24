@@ -29,7 +29,27 @@ HOME_TEXT = (
 
 
 def keyboard(rows):
-    return InlineKeyboardMarkup([[InlineKeyboardButton(label, callback_data=data) for label, data in row] for row in rows])
+    """Create inline buttons with Telegram's built-in styles.
+
+    Telegram currently exposes only primary (blue), success (green) and
+    danger (red); a custom purple/HEX color is not supported by the Bot API.
+    """
+    markup_rows = []
+    for row in rows:
+        buttons = []
+        for item in row:
+            label, data = item[0], item[1]
+            style = item[2] if len(item) > 2 else None
+            if style is None:
+                if data.startswith("buy:") or data == "catalog":
+                    style = "success"
+                elif data in {"home", "promos"}:
+                    style = "danger"
+                else:
+                    style = "primary"
+            buttons.append(InlineKeyboardButton(label, callback_data=data, style=style))
+        markup_rows.append(buttons)
+    return InlineKeyboardMarkup(markup_rows)
 
 
 def home_keyboard():
